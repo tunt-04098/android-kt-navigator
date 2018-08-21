@@ -89,10 +89,13 @@ class Navigator(activity: FragmentActivity?, fragmentManager: FragmentManager) {
      * @param animPopExit           Pop exit animation
      */
     @SuppressLint("ResourceType")
-    fun openFragment(fragment: Fragment, @IdRes contentId: Int, backToCurrentFragment: Boolean, layoutType: LayoutType,
+    fun openFragment(fragment: Fragment, @IdRes contentId: Int = this.contentId, backToCurrentFragment: Boolean = true, layoutType: LayoutType = LayoutType.ADD,
                      @AnimRes animEnter: Int = this.animEnter, @AnimRes animExit: Int = this.animExit,
                      @AnimRes animPopEnter: Int = this.animPopEnter, @AnimRes animPopExit: Int = this.animPopExit) {
         if (fragmentManager == null) return
+        if (contentId == 0) {
+            throw IllegalStateException("call setDefaultContentId first")
+        }
         ensureAnimationForFragment(fragment)
         ensureAnimationForFragmentsInBackStack(1)
         val fragmentTransaction = fragmentManager!!.beginTransaction()
@@ -112,19 +115,19 @@ class Navigator(activity: FragmentActivity?, fragmentManager: FragmentManager) {
         fragmentTransaction.commit()
     }
 
-    /**
-     * a bit shorter of full version with enable or disable animation when changing fragment
-     */
-    fun openFragment(fragment: Fragment, @IdRes contentId: Int = this.contentId, backToCurrentFragment: Boolean = true, layoutType: LayoutType = LayoutType.ADD, animation: Boolean = true) {
-        if (contentId == 0) {
-            throw IllegalStateException("call setDefaultContentId first")
-        }
-        if (animation) {
-            openFragment(fragment, contentId, backToCurrentFragment, layoutType)
-        } else {
-            openFragment(fragment, contentId, backToCurrentFragment, layoutType, 0, 0, 0, 0)
-        }
-    }
+//    /**
+//     * a bit shorter of full version with enable or disable animation when changing fragment
+//     */
+//    fun openFragment(fragment: Fragment, @IdRes contentId: Int = this.contentId, backToCurrentFragment: Boolean = true, layoutType: LayoutType = LayoutType.ADD, animation: Boolean = true) {
+//        if (contentId == 0) {
+//            throw IllegalStateException("call setDefaultContentId first")
+//        }
+//        if (animation) {
+//            openFragment(fragment, contentId, backToCurrentFragment, layoutType)
+//        } else {
+//            openFragment(fragment, contentId, backToCurrentFragment, layoutType, 0, 0, 0, 0)
+//        }
+//    }
 
     /**
      * get current fragment laid out on layout with contentId

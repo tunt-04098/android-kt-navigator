@@ -12,7 +12,7 @@ import com.tunt.kt.lib.navigator.NavigatorFragmentInterface
  * Created by TuNT on 8/21/2018.
  * tunt.program.04098@gmail.com
  */
-class NavigatorFragment : Fragment(), NavigatorFragmentInterface {
+abstract class NavigatorFragment : Fragment(), NavigatorFragmentInterface {
 
     private val dispatcher = NavigatorFragmentDispatcherImpl();
 

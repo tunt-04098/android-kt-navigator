@@ -10,13 +10,14 @@ import com.tunt.kt.lib.navigator.NavigatorActivityInterface
  * Created by TuNT on 8/21/2018.
  * tunt.program.04098@gmail.com
  */
-class NavigatorAppCompatActivity : AppCompatActivity(), NavigatorActivityInterface {
+abstract class NavigatorAppCompatActivity : AppCompatActivity(), NavigatorActivityInterface {
 
     private val dispatcher = NavigatorActivityDispatcherImpl()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         dispatcher.onCreate(this)
+        dispatcher.getNavigator().setDefaultContentId(defaultContentId())
     }
 
     override fun isStateSaved(): Boolean = dispatcher.isStateSaved()
@@ -31,4 +32,6 @@ class NavigatorAppCompatActivity : AppCompatActivity(), NavigatorActivityInterfa
     }
 
     override fun onBackPressed() = dispatcher.onBackPressed()
+
+    abstract fun defaultContentId(): Int
 }
