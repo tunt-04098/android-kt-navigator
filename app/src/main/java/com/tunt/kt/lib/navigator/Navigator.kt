@@ -210,7 +210,7 @@ class Navigator(activity: FragmentActivity?, fragmentManager: FragmentManager) {
     fun backToRoot() {
         ensureAnimationForFragmentsInBackStack(-1)
         if (!isRoot()) {
-            val backStackCount = fragmentManager.backStackEntryCount ?: 0
+            val backStackCount = fragmentManager.backStackEntryCount
             for (i in (backStackCount - 1) downTo 1) {
                 popBackStack()
             }
@@ -222,7 +222,7 @@ class Navigator(activity: FragmentActivity?, fragmentManager: FragmentManager) {
     }
 
     fun isRoot(): Boolean {
-        return fragmentManager.backStackEntryCount ?: 0 <= 1
+        return fragmentManager.backStackEntryCount <= 1
     }
 
     fun clean() {
