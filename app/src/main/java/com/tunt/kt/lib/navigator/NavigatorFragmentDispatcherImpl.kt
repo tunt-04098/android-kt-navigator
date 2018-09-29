@@ -23,15 +23,15 @@ class NavigatorFragmentDispatcherImpl : NavigatorFragmentDispatcher {
      */
     override var isDisableAnimation: Boolean = false
 
-    override val rootNavigator: Navigator?
+    override val rootNavigator: Navigator
         get() = if (fragment.activity is NavigatorActivityInterface) {
             (fragment.activity as NavigatorActivityInterface).getNavigator()
-        } else null
+        } else throw IllegalStateException()
 
-    override val parentNavigator: Navigator?
+    override val parentNavigator: Navigator
         get() = if (fragment.parentFragment is NavigatorFragmentInterface) {
             (fragment.parentFragment as NavigatorFragmentInterface).getOwnNavigator()
-        } else null
+        } else throw IllegalStateException()
 
     override val ownNavigator: Navigator
         get() = navigator

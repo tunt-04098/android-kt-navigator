@@ -6,8 +6,11 @@ import android.support.annotation.IdRes
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
 import android.support.v4.app.FragmentManager
-import com.tunt.android_kt_navigator.R
 import com.tunt.kt.lib.navigator.internal.LayoutType
+import android.content.Intent
+import android.os.Bundle
+import android.app.Activity
+
 
 /**
  * Created by TuNT on 8/21/2018.
@@ -17,7 +20,7 @@ class Navigator(activity: FragmentActivity?, fragmentManager: FragmentManager) {
 
     private var activity: FragmentActivity?
 
-    private var fragmentManager: FragmentManager?
+    private var fragmentManager: FragmentManager
 
     /**
      * if true: No animation will return on [Fragment.onCreateAnimation]
@@ -43,7 +46,7 @@ class Navigator(activity: FragmentActivity?, fragmentManager: FragmentManager) {
     init {
         this.activity = activity
         this.fragmentManager = fragmentManager
-        setDefaultAnim(R.anim.navigator_slide_in_right, R.anim.navigator_slide_out_left,
+        setDefaultAnimation(R.anim.navigator_slide_in_right, R.anim.navigator_slide_out_left,
                 R.anim.navigator_slide_in_left, R.anim.navigator_slide_out_right)
     }
 
@@ -69,7 +72,7 @@ class Navigator(activity: FragmentActivity?, fragmentManager: FragmentManager) {
     /**
      * set default animation when opening fragment
      */
-    fun setDefaultAnim(@AnimRes animEnter: Int, @AnimRes animExit: Int,
+    fun setDefaultAnimation(@AnimRes animEnter: Int, @AnimRes animExit: Int,
                        @AnimRes animPopEnter: Int, @AnimRes animPopExit: Int) {
         this.animEnter = animEnter
         this.animExit = animExit
@@ -92,13 +95,12 @@ class Navigator(activity: FragmentActivity?, fragmentManager: FragmentManager) {
     fun openFragment(fragment: Fragment, @IdRes contentId: Int = this.contentId, backToCurrentFragment: Boolean = true, layoutType: LayoutType = LayoutType.ADD,
                      @AnimRes animEnter: Int = this.animEnter, @AnimRes animExit: Int = this.animExit,
                      @AnimRes animPopEnter: Int = this.animPopEnter, @AnimRes animPopExit: Int = this.animPopExit) {
-        if (fragmentManager == null) return
         if (contentId == 0) {
             throw IllegalStateException("call setDefaultContentId first")
         }
         ensureAnimationForFragment(fragment)
         ensureAnimationForFragmentsInBackStack(1)
-        val fragmentTransaction = fragmentManager!!.beginTransaction()
+        val fragmentTransaction = fragmentManager.beginTransaction()
         if (animEnter > 0 || animExit > 0 || animPopEnter > 0 || animPopExit > 0) {
             fragmentTransaction.setCustomAnimations(animEnter, animExit, animPopEnter, animPopExit)
         }
@@ -115,28 +117,14 @@ class Navigator(activity: FragmentActivity?, fragmentManager: FragmentManager) {
         fragmentTransaction.commit()
     }
 
-//    /**
-//     * a bit shorter of full version with enable or disable animation when changing fragment
-//     */
-//    fun openFragment(fragment: Fragment, @IdRes contentId: Int = this.contentId, backToCurrentFragment: Boolean = true, layoutType: LayoutType = LayoutType.ADD, animation: Boolean = true) {
-//        if (contentId == 0) {
-//            throw IllegalStateException("call setDefaultContentId first")
-//        }
-//        if (animation) {
-//            openFragment(fragment, contentId, backToCurrentFragment, layoutType)
-//        } else {
-//            openFragment(fragment, contentId, backToCurrentFragment, layoutType, 0, 0, 0, 0)
-//        }
-//    }
-
     /**
      * get current fragment laid out on layout with contentId
      */
     fun getCurrentFragment(@IdRes contentId: Int): Fragment? {
-        return fragmentManager?.findFragmentById(contentId)
+        return fragmentManager.findFragmentById(contentId)
     }
 
-    fun goBack(forceBack: Boolean): Boolean {
+    fun goBack(forceBack: Boolean = true): Boolean {
         val isNavigateFromActivity = activity?.supportFragmentManager === fragmentManager
         if (!isBackStackEmpty() && !forceBack) {
             val lastFragment = getLastFragmentInBackStack()
@@ -183,7 +171,7 @@ class Navigator(activity: FragmentActivity?, fragmentManager: FragmentManager) {
      * positive: for count fragment
      */
     private fun ensureAnimationForFragmentsInBackStack(count: Int) {
-        val fragments = fragmentManager?.fragments
+        val fragments = fragmentManager.fragments
         if (fragments == null || fragments.isEmpty()) return
         var sum = 0
         val size = fragments.size
@@ -203,7 +191,7 @@ class Navigator(activity: FragmentActivity?, fragmentManager: FragmentManager) {
     }
 
     private fun getLastFragmentInBackStack(): Fragment? {
-        val fragments = fragmentManager?.fragments
+        val fragments = fragmentManager.fragments
         if (fragments == null || fragments.isEmpty()) return null
         val size = fragments.size
         var i = size - 1
@@ -222,7 +210,7 @@ class Navigator(activity: FragmentActivity?, fragmentManager: FragmentManager) {
     fun backToRoot() {
         ensureAnimationForFragmentsInBackStack(-1)
         if (!isRoot()) {
-            val backStackCount = fragmentManager?.backStackEntryCount ?: 0
+            val backStackCount = fragmentManager.backStackEntryCount ?: 0
             for (i in (backStackCount - 1) downTo 1) {
                 popBackStack()
             }
@@ -230,25 +218,46 @@ class Navigator(activity: FragmentActivity?, fragmentManager: FragmentManager) {
     }
 
     fun isBackStackEmpty(): Boolean {
-        return fragmentManager?.backStackEntryCount == 0
+        return fragmentManager.backStackEntryCount == 0
     }
 
     fun isRoot(): Boolean {
-        return fragmentManager?.backStackEntryCount ?: 0 <= 1
+        return fragmentManager.backStackEntryCount ?: 0 <= 1
     }
 
     fun clean() {
         activity = null
-        fragmentManager = null
     }
 
     fun popBackStack() {
-        if (activity == null) {
-            return
+        activity?.let {
+            if (activity is NavigatorActivityInterface && (activity as NavigatorActivityInterface).isStateSaved()) {
+                return
+            }
+            fragmentManager.popBackStack()
         }
-        if (activity is NavigatorActivityInterface && (activity as NavigatorActivityInterface).isStateSaved()) {
-            return
+    }
+
+    fun openActivity(activityClassToOpen: Class<out Activity>, args: Bundle? = null, finishCurrentActivity: Boolean = false) {
+        val intent = Intent(activity, activityClassToOpen)
+        if (args != null) {
+            intent.putExtras(args)
         }
-        fragmentManager?.popBackStack()
+        activity?.startActivity(intent)
+        if (finishCurrentActivity) {
+            finishActivity()
+        }
+    }
+
+    fun finishActivity() {
+        activity?.finish()
+    }
+
+    fun openActivityForResult(activityClassToOpen: Class<out Activity>, args: Bundle?, requestCode: Int) {
+        val intent = Intent(activity, activityClassToOpen)
+        if (args != null) {
+            intent.putExtras(args)
+        }
+        activity?.startActivityForResult(intent, requestCode)
     }
 }

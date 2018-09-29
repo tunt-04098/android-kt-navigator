@@ -41,7 +41,7 @@ class NavigatorActivityDispatcherImpl : NavigatorActivityDispatcher {
         if (activity is NavigatorActivityInterface) {
             (activity as NavigatorActivityInterface).onFinish()
         } else {
-            activity.finish()
+            navigator.finishActivity()
         }
     }
 

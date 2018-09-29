@@ -25,9 +25,9 @@ abstract class NavigatorFragment : Fragment(), NavigatorFragmentInterface {
 
     override fun getOwnNavigator(): Navigator = dispatcher.ownNavigator
 
-    override fun getParentNavigator(): Navigator? = dispatcher.parentNavigator
+    override fun getParentNavigator(): Navigator = dispatcher.parentNavigator
 
-    override fun getRootNavigator(): Navigator? = dispatcher.rootNavigator
+    override fun getRootNavigator(): Navigator = dispatcher.rootNavigator
 
     override fun getNavigatorDispatcher(): NavigatorFragmentDispatcher = dispatcher
 

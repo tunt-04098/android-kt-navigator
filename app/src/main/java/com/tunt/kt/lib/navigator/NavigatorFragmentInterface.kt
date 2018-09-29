@@ -10,9 +10,9 @@ interface NavigatorFragmentInterface {
 
     fun getOwnNavigator(): Navigator
 
-    fun getParentNavigator(): Navigator?
+    fun getParentNavigator(): Navigator
 
-    fun getRootNavigator(): Navigator?
+    fun getRootNavigator(): Navigator
 
     fun getNavigatorDispatcher(): NavigatorFragmentDispatcher
 }

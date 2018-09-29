@@ -11,9 +11,9 @@ interface NavigatorFragmentDispatcher {
 
     var isDisableAnimation: Boolean
 
-    val rootNavigator: Navigator?
+    val rootNavigator: Navigator
 
-    val parentNavigator: Navigator?
+    val parentNavigator: Navigator
 
     val ownNavigator: Navigator
 
